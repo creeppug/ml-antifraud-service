@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Визуализация данных</title>
+    <style>
+        .chart {
+            width: 400px;
+            height: 300px;
+            border: 1px solid #ccc;
+            margin: 20px;
+        }
+        .bar {
+            background-color: #597493;
+            height: 20px;
+            margin-bottom: 5px;
+            color: white;
+            font-size: 12px;
+            line-height: 20px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <h1>Визуализация данных</h1>
+    <h2>Количество сущностей</h2>
+    <div class="chart">
+        <div class="bar" style="width: {{ fraud_fraud_percentage }}%;">FRAUD ({{ fraud_fraud_count }})</div>
+        <div class="bar" style="width: {{ fraud_not_fraud_percentage }}%;">NOT FRAUD ({{ fraud_not_fraud_count }})</div>        
+    </div>
+</body>
+</html>

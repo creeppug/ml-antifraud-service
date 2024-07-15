@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Form</title>
+    <style>
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .column {
+            width: 45%;
+        }
+        .form-field {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Payment Form</h1>
+    <form id="paymentForm">
+        <div class="form-container">
+            <div class="column">
+                <div class="form-field">
+                    <label for="credit_card_number">Credit Card Number:</label>
+                    <input type="text" id="credit_card_number" name="credit_card_number" required>
+                </div>
+                <div class="form-field">
+                    <label for="exp">Expiration Date:</label>
+                    <input type="text" id="exp" name="exp" placeholder="MM/YY" required>
+                </div>
+                <div class="form-field">
+                    <label for="cvv">CVV:</label>
+                    <input type="text" id="cvv" name="cvv" required>
+                </div>
+                <div class="form-field">
+                    <label for="sum">Sum:</label>
+                    <input type="text" id="sum" name="sum" required>
+                </div>
+                <div class="form-field">
+                    <label for="user_id">User ID:</label>
+                    <input type="number" id="user_id" name="user_id" required>
+                </div>
+            </div>
+            <div class="column">
+                <div class="form-field">
+                    <label for="distance_from_home">Distance From Home:</label>
+                    <input type="number" id="distance_from_home" name="distance_from_home" required>
+                </div>
+                <div class="form-field">
+                    <label for="distance_from_last_transaction">Distance From Last Transaction:</label>
+                    <input type="number" id="distance_from_last_transaction" name="distance_from_last_transaction" required>
+                </div>
+                <div class="form-field">
+                    <label for="ratio_to_median_purchase_price">Ratio To Median Purchase Price:</label>
+                    <input type="number" id="ratio_to_median_purchase_price" name="ratio_to_median_purchase_price" required>
+                </div>
+                <div class="form-field">
+                    <label for="repeat_retailer">Repeat Retailer:</label>
+                    <input type="number" id="repeat_retailer" name="repeat_retailer" required>
+                </div>
+                <div class="form-field">
+                    <label for="used_chip">Used Chip:</label>
+                    <input type="number" id="used_chip" name="used_chip" required>
+                </div>
+                <div class="form-field">
+                    <label for="used_pin_number">Used Pin Number:</label>
+                    <input type="number" id="used_pin_number" name="used_pin_number" required>
+                </div>
+                <div class="form-field">
+                    <label for="online_order">Online Order:</label>
+                    <input type="number" id="online_order" name="online_order" required>
+                </div>
+            </div>
+        </div>
+        <button type="button" onclick="submitForm()">Pay</button>
+    </form>
+    
+    <div id="message"></div>
+
+    <script>
+        async function submitForm() {
+            const form = document.getElementById("paymentForm");
+            const formData = new FormData(form);
+
+            const antifraudData = {
+                user_id: parseInt(formData.get("user_id")),
+                distance_from_home: parseFloat(formData.get("distance_from_home")),
+                distance_from_last_transaction: parseFloat(formData.get("distance_from_last_transaction")),
+                ratio_to_median_purchase_price: parseFloat(formData.get("ratio_to_median_purchase_price")),
+                repeat_retailer: parseFloat(formData.get("repeat_retailer")),
+                used_chip: parseFloat(formData.get("used_chip")),
+                used_pin_number: parseFloat(formData.get("used_pin_number")),
+                online_order: parseFloat(formData.get("online_order"))
+            };
+
+            try {
+                const response = await fetch("/getantifraud", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(antifraudData)
+                });
+
+                const result = await response.json();
+                const messageDiv = document.getElementById("message");
+
+                if (response.ok) {
+                    const fraudStatus = result.results[0].fraud_status;
+                    if (fraudStatus === 'FRAUD') {
+                        messageDiv.innerText = "Warning: Fraud detected!";
+                        messageDiv.style.color = "red";
+                    } else if (fraudStatus === 'NEED ANALYTICS') {
+                        messageDiv.innerText = "Attention: Transaction needs further analysis.";
+                        messageDiv.style.color = "orange";
+                    } else {
+                        messageDiv.innerText = "Transaction is not fraudulent.";
+                        messageDiv.style.color = "green";
+                    }
+                } else {
+                    messageDiv.innerText = "Payment failed. Please try again.";
+                    messageDiv.style.color = "red";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                const messageDiv = document.getElementById("message");
+                messageDiv.innerText = "An error occurred. Please try again later.";
+                messageDiv.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>

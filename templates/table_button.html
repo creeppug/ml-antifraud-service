@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions Data</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script>
+        async function updateFraud(fraud, userId, transactionId) {
+            const response = await fetch(`/update_fraud`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ fraud, user_id: userId, transaction_id: transactionId })
+            });
+            const result = await response.json();
+            alert(result.message);
+            location.reload();  // Перезагрузить страницу, чтобы отразить изменения
+        }
+    </script>
+</head>
+<body>
+    <h2>Transactions Data</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Transaction ID</th>
+                <th>User ID</th>
+                <th>Distance from Home</th>
+                <th>Distance from Last Transaction</th>
+                <th>Ratio to Median Purchase Price</th>
+                <th>Repeat Retailer</th>
+                <th>Used Chip</th>
+                <th>Used Pin Number</th>
+                <th>Online Order</th>
+                <th>Fraud</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions_data %}
+            <tr>
+                <td>{{ transaction[0] }}</td>
+                <td>{{ transaction[1] }}</td>
+                <td>{{ transaction[2] }}</td>
+                <td>{{ transaction[3] }}</td>
+                <td>{{ transaction[4] }}</td>
+                <td>{{ transaction[5] }}</td>
+                <td>{{ transaction[6] }}</td>
+                <td>{{ transaction[7] }}</td>
+                <td>{{ transaction[8] }}</td>
+                <td>{{ transaction[9] }}</td>
+                <td>
+                    <button onclick="updateFraud('FRAUD', '{{ transaction[1] }}', '{{ transaction[0] }}')">FRAUD</button>
+                    <button onclick="updateFraud('NOT FRAUD', '{{ transaction[1] }}', '{{ transaction[0] }}')">NOT FRAUD</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
